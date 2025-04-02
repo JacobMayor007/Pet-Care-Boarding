@@ -340,7 +340,7 @@ export default function RentersPage() {
   }, [userData]);
 
   return (
-    <div className="">
+    <div className={userData[0]?.User_UID ? `flex flex-col` : `hidden`}>
       <nav className="relative z-20">
         <RentersNavigation />
       </nav>
