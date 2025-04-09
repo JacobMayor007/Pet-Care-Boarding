@@ -4,7 +4,7 @@ import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { signingIn } from "../fetchData/fetchUserData";
 import { auth, db, fbprovider, provider } from "../firebase/config";
-import { signInWithPopup } from "firebase/auth";
+import { getAuth, signInWithPopup, signOut } from "firebase/auth";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faChevronUp } from "@fortawesome/free-solid-svg-icons";
 import { collection, getDocs, query, where } from "firebase/firestore";
@@ -82,7 +82,7 @@ export default function Login() {
       setLoading(true);
 
       const docRef = collection(db, userType);
-      const q = query(docRef, where("User_Email", "==", email));
+      const q = query(docRef, where("room_provider_email", "==", email));
       const docSnap = await getDocs(q);
       if (!docSnap.empty) {
         await signingIn(email, password);
@@ -118,25 +118,28 @@ export default function Login() {
 
   const googleAuth = async () => {
     try {
-      if (userType === "client") {
-        await signInWithPopup(auth, provider);
-        return router.push("/");
-      }
-
+      const result = await signInWithPopup(auth, provider);
       const docRef = collection(db, userType);
-      const q = query(docRef, where("User_Email", "==", email));
+      const q = query(
+        docRef,
+        where("room_provider_email", "==", result.user.email)
+      );
       const docSnap = await getDocs(q);
 
       if (!docSnap.empty) {
-        await signInWithPopup(auth, provider);
-        return router.push(`${userRoute}`);
-      } else
+        return router.push(`/`);
+      } else {
+        const auth = getAuth();
+        signOut(auth).then(() => {
+          router.push("/Login");
+        });
         return (
           router.push("/Login"),
           alert(
             `This account is does not exist on ${loginAs}, go to the Sign Up Page if you want to register as ${loginAs}`
           )
         );
+      }
     } catch (error) {
       console.error(error);
     }
@@ -144,25 +147,29 @@ export default function Login() {
 
   const facebookAuth = async () => {
     try {
-      if (userType === "client") {
-        await signInWithPopup(auth, fbprovider);
-        router.push("/");
-      }
+      const result = await signInWithPopup(auth, fbprovider);
 
       const docRef = collection(db, userType);
-      const q = query(docRef, where("User_Email", "==", email));
+      const q = query(
+        docRef,
+        where("room_provider_email", "==", result.user.email)
+      );
       const docSnap = await getDocs(q);
 
       if (!docSnap.empty) {
-        await signInWithPopup(auth, fbprovider);
-        return router.push(`${userRoute}`);
-      } else
+        return router.push(`/`);
+      } else {
+        const auth = getAuth();
+        signOut(auth).then(() => {
+          router.push("/Login");
+        });
         return (
           router.push("/Login"),
           alert(
             `This account is does not exist on ${loginAs}, go to the Sign Up Page if you want to register as ${loginAs}`
           )
         );
+      }
     } catch (error) {
       console.error(error);
     }
