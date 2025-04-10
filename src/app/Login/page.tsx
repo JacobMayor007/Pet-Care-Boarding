@@ -20,8 +20,7 @@ export default function Login() {
   const [loading, setLoading] = useState(false);
   const [loginAs, setLoginAs] = useState("Pet Boarding Services");
   const [loginAsDropDown, setLoginAsDropDown] = useState(false);
-  const [userType, setUserType] = useState("room-providers");
-  const [userRoute, setUserRoute] = useState("/");
+  const [userType, setUserType] = useState("room-provider");
 
   const loginAsData = [
     {
@@ -81,12 +80,12 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const docRef = collection(db, userType);
+      const docRef = collection(db, "room-provider");
       const q = query(docRef, where("room_provider_email", "==", email));
       const docSnap = await getDocs(q);
       if (!docSnap.empty) {
         await signingIn(email, password);
-        return router.push(`${userRoute}`);
+        return router.push(`/`);
       } else
         return (
           router.push("/Login"),
@@ -219,7 +218,6 @@ export default function Login() {
                       setLoginAsDropDown(false);
                       setLoginAs(data?.label);
                       setUserType(data?.type);
-                      setUserRoute(data?.route);
                     }}
                   >
                     {data?.label}
@@ -262,9 +260,7 @@ export default function Login() {
               />
               <div className="absolute right-4 bottom-4">
                 <Image
-                  src={
-                    showPassword ? `./Eyeopen.png` : `./icon _eye close_.svg`
-                  }
+                  src={showPassword ? `/Eyeopen.png` : `/icon _eye close_.svg`}
                   height={33.53}
                   width={19}
                   alt="Show Password icon"
