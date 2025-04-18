@@ -4,7 +4,13 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { BellOutlined } from "@ant-design/icons";
 import { useEffect, useRef, useState } from "react";
-import { DocumentData } from "firebase/firestore";
+import {
+  collection,
+  DocumentData,
+  getDocs,
+  query,
+  where,
+} from "firebase/firestore";
 import Signout from "../SignedOut/page";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faChevronDown, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
@@ -12,6 +18,7 @@ import Loading from "../Loading/page";
 import Link from "next/link";
 import { MyNotification } from "../fetchData/renterData";
 import { Rate } from "antd";
+import { db } from "../firebase/config";
 
 interface Notifications {
   id?: string;
@@ -81,6 +88,50 @@ const RentersNavigation = () => {
     );
   }
 
+  const latestChats = async () => {
+    try {
+      if (!userData[0]?.User_Email) {
+        console.error("User UID is not defined.");
+        return;
+      }
+
+      const docRef = collection(db, "chats");
+      const q = query(
+        docRef,
+        where("participants", "array-contains", userData[0]?.User_Email)
+      );
+      const docSnap = await getDocs(q);
+
+      if (docSnap.empty) {
+        console.log("No chats found.");
+        router.push("/Message");
+      } else {
+        const otherUser = docSnap.docs.map((doc) => {
+          const chatData = doc.data();
+          const otherUserEmail = chatData.participants.find(
+            (email: string) => email !== userData[0]?.User_Email
+          );
+          return otherUserEmail;
+        });
+
+        const otherUserEmail = otherUser[0];
+
+        const userRef = collection(db, "Users");
+        const userQ = query(userRef, where("User_Email", "==", otherUserEmail));
+        const userSnap = await getDocs(userQ);
+
+        let otherID: string = "";
+        if (!userSnap.empty) {
+          otherID = userSnap.docs[0].id;
+        }
+
+        router.push(`/Message/${otherID}`);
+      }
+    } catch (error) {
+      console.error("Error fetching chats:", error);
+    }
+  };
+
   return (
     <nav className="h-20 flex flex-row justify-center items-center z-[2]">
       <div className="flex items-center justify-center gap-16 px-14 w-full">
@@ -133,7 +184,7 @@ const RentersNavigation = () => {
           </li>
           <Link
             className="w-28 h-14 flex items-center justify-center cursor-pointer"
-            href="//Transactions"
+            href="/Transactions"
             passHref
             legacyBehavior
           >
@@ -143,13 +194,15 @@ const RentersNavigation = () => {
           </Link>
 
           {/* <Link href="//Messages" passHref legacyBehavior> */}
-          <li className="w-28 h-14 flex items-center justify-center">
-            <Link
-              href="//Messages"
-              className="font-montserrat text-base text-[#006B95] font-bold"
+          <li className="w-44 h-14 flex items-center justify-center font-bold cursor-pointer">
+            <div
+              className="font-montserrat text-base text-[#006B95] font-bold "
+              onClick={() => {
+                latestChats();
+              }}
             >
-              Messages
-            </Link>
+              Inbox
+            </div>
           </li>
           {/* </Link> */}
         </ul>
