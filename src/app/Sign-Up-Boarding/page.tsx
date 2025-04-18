@@ -103,7 +103,7 @@ export default function RegisterAsDoctor() {
       const userRef = doc(db, "Users", res.user.uid);
 
       await setDoc(userRef, {
-        User_Name: formData.fName + formData.lName,
+        User_Name: formData.fName + " " + formData.lName,
         User_Email: formData.email,
         User_UID: res.user.uid,
         TermsAndConditions: checkBox,
@@ -113,7 +113,7 @@ export default function RegisterAsDoctor() {
       const roomProviderRef = doc(db, "room-provider", res.user.uid);
 
       await setDoc(roomProviderRef, {
-        room_provider_fullName: formData.fName + formData.lName,
+        room_provider_fullName: formData.fName + " " + formData.lName,
         room_provider_email: formData.email,
         room_provider_uid: res.user.uid,
         terms_and_conditions: checkBox,
@@ -168,7 +168,7 @@ export default function RegisterAsDoctor() {
       const userRef = doc(db, "Users", result.user.uid);
       const roomProviderRef = doc(db, "room-provider", result.user.uid);
       await setDoc(userRef, {
-        User_Name: formData.fName + formData.lName,
+        User_Name: formData.fName + " " + formData.lName,
         User_Email: formData.email,
         User_UID: result.user.uid,
         TermsAndConditions: checkBox,
@@ -176,7 +176,7 @@ export default function RegisterAsDoctor() {
       });
 
       await setDoc(roomProviderRef, {
-        room_provider_fullName: formData.fName + formData.lName,
+        room_provider_fullName: formData.fName + " " + formData.lName,
         room_provider_email: formData.email,
         room_provider_uid: result.user.uid,
         terms_and_conditions: checkBox,
@@ -220,7 +220,7 @@ export default function RegisterAsDoctor() {
       const userRef = doc(db, "Users", result.user.uid);
       const roomProviderRef = doc(db, "room-provider", result.user.uid);
       await setDoc(userRef, {
-        User_Name: formData.fName + formData.lName,
+        User_Name: formData.fName + " " + formData.lName,
         User_Email: formData.email,
         User_UID: result.user.uid,
         TermsAndConditions: checkBox,
@@ -228,7 +228,7 @@ export default function RegisterAsDoctor() {
       });
 
       await setDoc(roomProviderRef, {
-        room_provider_fullName: formData.fName + formData.lName,
+        room_provider_fullName: formData.fName + " " + formData.lName,
         room_provider_email: formData.email,
         room_provider_uid: result.user.uid,
         terms_and_conditions: checkBox,

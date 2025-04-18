@@ -54,7 +54,7 @@ export default function Login() {
       key: 4,
       label: "Pet Memorial Provider",
       type: "funeral",
-      route: "/Funeral",
+      route: "https://memorial-pet-care-pro.vercel.app/Login",
     },
     { key: 5, label: "Pet Sitting Services", type: "sitter", route: "/Sitter" },
   ];

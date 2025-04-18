@@ -69,6 +69,7 @@ export default function ListOfRooms() {
           where("Renter_UserID", "==", renterID),
           where("Renter_RoomStatus", "==", selected)
         );
+
         const unsubscribe = onSnapshot(q, (querSnapshot) => {
           const board: myBoard[] = querSnapshot.docs.map((doc) => {
             const data = doc.data();
