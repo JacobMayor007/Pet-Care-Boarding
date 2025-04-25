@@ -22,7 +22,7 @@ import { db } from "../firebase/config";
 
 interface Notifications {
   id?: string;
-  boardID?: string;
+  room_ID?: string;
   createdAt?: string;
   message?: string;
   sender?: string;
@@ -43,7 +43,6 @@ const RentersNavigation = () => {
   const [logout, setLogout] = useState(false);
   const [loading, setLoading] = useState(false);
   const [showNotif, setShowNotif] = useState(false);
-  const [userUID, setUserUID] = useState("");
   useEffect(() => {
     const closeProfile = (e: MouseEvent) => {
       // Check if the click is outside the divRef element
@@ -64,7 +63,6 @@ const RentersNavigation = () => {
       try {
         const user = await fetchUserData();
         setUserData(user);
-        setUserUID(user[0]?.User_UID);
       } catch (err) {
         console.error(err);
       } finally {
@@ -225,29 +223,35 @@ const RentersNavigation = () => {
                   : `hidden`
               }
             >
-              <Link
+              {/* <Link
                 href={`/Profile/Boarder/${userUID}`}
                 className="text-center font-hind  h-full w-44 flex items-center justify-center border-b-[1px] border-[#B1B1B1]"
               >
-                My Account
-              </Link>
+                My Profile
+              </Link> */}
               <Link
-                href={`/find-my-buddy`}
-                className="text-center font-hind  h-full w-44 flex items-center justify-center border-b-[1px] border-[#B1B1B1]"
-              >
-                Want to find your buddy?
-              </Link>
-              <Link
-                href={`/Doctor`}
+                href={`https://doctor-pet-care-pro.vercel.app/`}
                 className="text-center font-hind  h-full w-44 flex items-center justify-center border-b-[1px] border-[#B1B1B1]"
               >
                 Want to become part of our doctors?
               </Link>
               <Link
-                href={`/Provider`}
+                href={`https://seller-pet-care-pro.vercel.app/`}
                 className="text-center font-hind  h-full w-44 flex items-center justify-center border-b-[1px] border-[#B1B1B1]"
               >
                 Want to become part of our product sellers?
+              </Link>
+              <Link
+                href={`https://memorial-pet-care-pro.vercel.app`}
+                className="text-center font-hind  h-full w-44 flex items-center justify-center border-b-[1px] border-[#B1B1B1]"
+              >
+                Want to become part of our memorials?
+              </Link>
+              <Link
+                href={`https://sitter-pet-care-pro.vercel.app`}
+                className="text-center font-hind  h-full w-44 flex items-center justify-center border-b-[1px] border-[#B1B1B1]"
+              >
+                Want to become part of our pet sitter?
               </Link>
 
               <Link
@@ -325,7 +329,7 @@ const UserNotification = () => {
             <div className="m-2 h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
             <div className="grid grid-cols-12 my-2 col-span-11">
               <a
-                href={`/Renter/Transactions/${data?.boardID}`}
+                href={`/Renter/Transactions/${data?.room_ID}`}
                 className="col-span-11 grid grid-cols-12"
               >
                 <div className="h-12 w-12 col-span-2 rounded-full bg-white drop-shadow-lg font-montserrat text-xs flex items-center justify-center text-center text-nowrap overflow-hidden">
