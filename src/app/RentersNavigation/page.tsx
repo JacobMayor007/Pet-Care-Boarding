@@ -208,12 +208,6 @@ const RentersNavigation = () => {
           </h1>
         </div>
         <ul className="list-type-none flex items-center gap-3">
-          {/* <Link
-            href="/Renter"
-            passHref
-            legacyBehavior
-            className="cursor-pointer"
-          > */}
           <li className="w-28 h-14 flex items-center justify-center cursor-pointer">
             <Link
               href="/"
@@ -222,8 +216,7 @@ const RentersNavigation = () => {
               Dashboard
             </Link>
           </li>
-          {/* </Link> */}
-          {/* <Link href="//ListOfRooms" passHref legacyBehavior> */}
+
           <li className="w-fit h-14 flex items-center justify-center">
             <Link
               href="/ListOfRooms"
