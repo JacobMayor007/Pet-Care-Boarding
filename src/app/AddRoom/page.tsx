@@ -121,7 +121,12 @@ export default function AddProduct() {
       localStorage.setItem("Type Of Payment:", JSON.stringify(typeOfPayment));
       localStorage.setItem("Room Price:", roomPrice.toString());
       localStorage.setItem("Room Name:", roomName);
-      localStorage.setItem("Room Features:", JSON.stringify(roomFeature));
+      localStorage.setItem(
+        "Room Features:",
+        Array.isArray(roomFeature) && roomFeature.length > 0
+          ? JSON.stringify(roomFeature)
+          : ""
+      );
       localStorage.setItem("Location:", location);
       localStorage.setItem("Type of Room:", typeOfRoom);
     }

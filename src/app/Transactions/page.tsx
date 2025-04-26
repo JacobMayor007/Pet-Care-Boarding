@@ -188,7 +188,7 @@ export default function AllTransactions() {
                   <p className="hidden" />
                 )}
                 <Link
-                  href={`/Renter/Transactions/${data?.id}`}
+                  href={`/Transactions/${data?.id}`}
                   className="absolute right-0 top-0 font-montserrat text-[#006B95] italic text-sm font-bold underline cursor-pointer"
                 >
                   Show more Details

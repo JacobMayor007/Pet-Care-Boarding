@@ -9,6 +9,7 @@ import {
   DocumentData,
   getDocs,
   query,
+  updateDoc,
   where,
 } from "firebase/firestore";
 import Signout from "../SignedOut/page";
@@ -16,7 +17,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Loading from "../Loading/page";
 import Link from "next/link";
-import { MyNotification } from "../fetchData/renterData";
+import { MyNotification, UnopenNotification } from "../fetchData/renterData";
 import { Rate } from "antd";
 import { db } from "../firebase/config";
 
@@ -42,6 +43,7 @@ const RentersNavigation = () => {
   const [userData, setUserData] = useState<DocumentData[]>([]);
   const [logout, setLogout] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [unopenNotif, setUnopenNotif] = useState(0);
   const [showNotif, setShowNotif] = useState(false);
   useEffect(() => {
     const closeProfile = (e: MouseEvent) => {
@@ -72,6 +74,64 @@ const RentersNavigation = () => {
     };
 
     getUserData();
+  }, []);
+
+  const openNotification = async (renter_ID: string) => {
+    try {
+      const collectionRef = collection(db, "notifications");
+      const q = query(
+        collectionRef,
+        where("open", "!=", null),
+        where("receiverID", "==", renter_ID)
+      );
+      const querySnapshot = await getDocs(q);
+
+      const updated = querySnapshot.docs.map(async (doc) => {
+        const docRef = doc.ref;
+
+        await updateDoc(docRef, {
+          ["open"]: true,
+        });
+      });
+
+      console.log(updated);
+
+      return updated;
+    } catch (error) {
+      console.log(error);
+      return [];
+    }
+  };
+
+  useEffect(() => {
+    let unsubscribe: () => void;
+
+    const getUnopenNotifications = async () => {
+      try {
+        const data = await fetchUserData();
+        const userUID = data[0]?.User_UID;
+
+        if (!userUID) {
+          console.log("Logged In First");
+          return;
+        }
+
+        unsubscribe = UnopenNotification(userUID, (newNotif) => {
+          setUnopenNotif(newNotif.length);
+        });
+      } catch (error) {
+        console.log(error);
+      }
+    };
+
+    getUnopenNotifications();
+
+    // Cleanup listener on unmount
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   if (loading) {
@@ -208,7 +268,10 @@ const RentersNavigation = () => {
         <div className="flex flex-row gap-4 relative" ref={divRef}>
           <BellOutlined
             className="text-lg text-[#006B95] font-bold cursor-pointer"
-            onClick={() => setShowNotif((prev) => !prev)}
+            onClick={() => {
+              setShowNotif((prev) => !prev);
+              openNotification(userData[0]?.User_UID);
+            }}
           />
           <UserOutlined onClick={() => setLogout((prev) => !prev)} />
           {logout ? (
@@ -265,6 +328,16 @@ const RentersNavigation = () => {
           ) : (
             <span className="hidden" />
           )}
+
+          <div
+            className={
+              unopenNotif > 0
+                ? `h-4 w-4 bg-red-500 text-white absolute left-3 -top-2 rounded-full flex justify-center items-center text-xs font-hind`
+                : `hidden`
+            }
+          >
+            {unopenNotif < 0 ? `` : unopenNotif}
+          </div>
 
           <div
             className={
@@ -328,7 +401,7 @@ const UserNotification = () => {
             <div className="m-2 h-2 w-2 rounded-full bg-blue-400 animate-pulse" />
             <div className="grid grid-cols-12 my-2 col-span-11">
               <a
-                href={`/Renter/Transactions/${data?.room_ID}`}
+                href={`/Transactions/${data?.room_ID}`}
                 className="col-span-11 grid grid-cols-12"
               >
                 <div className="h-12 w-12 col-span-2 rounded-full bg-white drop-shadow-lg font-montserrat text-xs flex items-center justify-center text-center text-nowrap overflow-hidden">

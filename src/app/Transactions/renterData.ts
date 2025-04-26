@@ -15,13 +15,11 @@ interface BoardDetails {
   BC_BoarderCheckOutTime?: Timestamp | string | null;
   BC_BoarderCheckInDate?: Timestamp | string | null;
   BC_BoarderCheckOutDate?: Timestamp | string | null;
-  BC_BoarderChoiceFeature?: [
-    {
-      label?: string;
-      name?: string;
-      value?: number;
-    }
-  ];
+  BC_BoarderChoiceFeature?: Array<{
+    label?: string;
+    name?: string;
+    value?: number;
+  }>;
   BC_BoarderDays?: number;
   BC_BoarderDietaryRestrictions?: string;
   BC_BoarderGuest?: string;
@@ -40,9 +38,14 @@ interface BoardDetails {
 interface Notification {
     id?: string;
     createdAt?: string;
+    hide?: boolean;
+    open?: boolean;
     message?: string;
-    doctor_UID?: string;
-    notif_userUID?: string;
+    receiverID?: string;
+    receiver_Fullname?: string;
+    room_ID?: string;
+    senderID?: string;
+    sender_Fullname?: string;
     status?: string;
     title?: string;
     type?: string;

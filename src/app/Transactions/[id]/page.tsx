@@ -4,20 +4,23 @@ import React, { useEffect, useState } from "react";
 import RentersNavigation from "../../RentersNavigation/page";
 import "@ant-design/v5-patch-for-react-19";
 import dayjs, { Dayjs } from "dayjs";
-import { Timestamp } from "firebase/firestore";
+import {
+  addDoc,
+  collection,
+  doc,
+  getDoc,
+  Timestamp,
+  updateDoc,
+} from "firebase/firestore";
 import Image from "next/image";
-import { Modal } from "antd";
+import { Modal, Rate } from "antd";
 import "@ant-design/v5-patch-for-react-19";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isTomorrow from "dayjs/plugin/isTomorrow";
-import {
-  acceptedBooked,
-  paidBooking,
-  roomDetails,
-  checkedInRoom,
-} from "../renterData";
+import { acceptedBooked, paidBooking, checkedInRoom } from "../renterData";
+import { db } from "@/app/firebase/config";
 
 dayjs.extend(isTomorrow);
 dayjs.extend(utc);
@@ -29,28 +32,28 @@ interface boardID {
   params: Promise<{ id: string }>;
 }
 
+interface Feature {
+  label?: string;
+  name?: string;
+  value?: number;
+}
+
 interface BoardDetails {
   boardId?: string;
   BC_BoarderUID?: string;
   BC_BoarderFullName?: string;
   BC_BoarderEmail?: string;
-  BC_BoarderBoardedAt?: Dayjs | null;
-  BC_BoarderCheckInTime?: Dayjs | null;
-  BC_BoarderCheckOutTime?: Dayjs | null;
-  BC_BoarderCheckInDate?: Dayjs | null;
-  BC_BoarderCheckOutDate?: Dayjs | null;
-  BC_BoarderChoiceFeature?: [
-    {
-      label?: string;
-      name?: string;
-      value?: number;
-    }
-  ];
+  BC_BoarderBoardedAt?: dayjs.Dayjs | null;
+  BC_BoarderCheckInTime?: dayjs.Dayjs | null;
+  BC_BoarderCheckOutTime?: dayjs.Dayjs | null;
+  BC_BoarderCheckInDate?: dayjs.Dayjs | null;
+  BC_BoarderCheckOutDate?: dayjs.Dayjs | null;
+  BC_BoarderChoiceFeature?: Feature[];
   BC_BoarderDays?: number;
   BC_BoarderDietaryRestrictions?: string;
-  BC_BoarderGuest?: string;
+  BC_BoarderGuest?: number;
   BC_BoarderStatus?: string;
-  BC_BoarderUpdated?: Dayjs | null;
+  BC_BoarderUpdated?: dayjs.Dayjs | null;
   BC_BoarderTypeRoom?: string;
   BC_RenterRoomID?: string;
   BC_RenterFullName?: string;
@@ -67,52 +70,81 @@ interface Value {
   features?: number[];
 }
 
+interface Rated {
+  id?: string;
+  Renter_Room_Total_Rating?: number;
+}
+
 export default function RoomDetails({ params }: boardID) {
   const { id } = React.use(params);
   const [boardDetails, setBoardDetails] = useState<BoardDetails | null>(null);
   const [featureValue, setFeatureValue] = useState<Value | null>(null);
   const [totalPrice, setTotalPrice] = useState<number | null>(null);
+  const [roomRate, setRoomRate] = useState<Rated | null>(null);
   const [acceptModal, setAcceptModal] = useState(false);
   const [checkedIn, setCheckedIn] = useState(false);
+  const [rejectModal, setRejectModal] = useState(false);
   const [showModalPaid, setShowModalPaid] = useState(false);
   const [checkedInModal, setCheckedInModal] = useState(false);
 
   useEffect(() => {
     const getRoomDetails = async () => {
       try {
-        const details = await roomDetails(id);
-        setBoardDetails({
-          ...details,
-          BC_BoarderBoardedAt:
-            details?.BC_BoarderBoardedAt instanceof Timestamp
-              ? dayjs((details?.BC_BoarderBoardedAt).toDate())
-              : null,
-          BC_BoarderCheckInDate:
-            details?.BC_BoarderCheckInDate instanceof Timestamp
-              ? dayjs((details?.BC_BoarderCheckInDate).toDate())
-              : null,
-          BC_BoarderCheckOutDate:
-            details?.BC_BoarderCheckOutDate instanceof Timestamp
-              ? dayjs((details?.BC_BoarderCheckOutDate).toDate())
-              : null,
-          BC_BoarderCheckInTime:
-            details?.BC_BoarderCheckInTime instanceof Timestamp
-              ? dayjs((details?.BC_BoarderCheckInTime).toDate())
-              : null,
-          BC_BoarderCheckOutTime:
-            details?.BC_BoarderCheckOutTime instanceof Timestamp
-              ? dayjs((details?.BC_BoarderCheckOutTime).toDate())
-              : null,
-          BC_BoarderUpdated:
-            details?.BC_BoarderUpdated instanceof Timestamp
-              ? dayjs((details?.BC_BoarderUpdated).toDate())
-              : null,
-        });
-      } catch (error) {
-        console.error(error);
+        const docRef = doc(db, "boarders", id);
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+
+          // Convert Timestamps to Dayjs
+          const convertTimestamp = (ts: Timestamp | undefined) =>
+            ts instanceof Timestamp ? dayjs(ts.toDate()) : null;
+
+          const result: BoardDetails = {
+            boardId: docSnap.id,
+            BC_BoarderUID: data.BC_BoarderUID,
+            BC_BoarderFullName: data.BC_BoarderFullName,
+            BC_BoarderEmail: data.BC_BoarderEmail,
+            BC_BoarderBoardedAt: convertTimestamp(data.BC_BoarderBoardedAt),
+            BC_BoarderCheckInTime: convertTimestamp(data.BC_BoarderCheckInTime),
+            BC_BoarderCheckOutTime: convertTimestamp(
+              data.BC_BoarderCheckOutTime
+            ),
+            BC_BoarderCheckInDate: convertTimestamp(data.BC_BoarderCheckInDate),
+            BC_BoarderCheckOutDate: convertTimestamp(
+              data.BC_BoarderCheckOutDate
+            ),
+            BC_BoarderChoiceFeature: Array.isArray(data.BC_BoarderChoiceFeature)
+              ? data.BC_BoarderChoiceFeature
+              : [{ label: "", name: "", value: 0 }],
+            BC_BoarderDays: data.BC_BoarderDays || 0,
+            BC_BoarderDietaryRestrictions:
+              data.BC_BoarderDietaryRestrictions || "None",
+            BC_BoarderGuest: data.BC_BoarderGuest || 0,
+            BC_BoarderStatus: data.BC_BoarderStatus || "Unknown",
+            BC_BoarderUpdated: convertTimestamp(data.BC_BoarderUpdated),
+            BC_BoarderTypeRoom: data.BC_BoarderTypeRoom || "",
+            BC_RenterRoomID: data.BC_RenterRoomID,
+            BC_RenterFullName: data.BC_RenterFullName,
+            BC_RenterUID: data.BC_RenterUID,
+            BC_RenterRoomName: data.BC_RenterRoomName,
+            BC_RenterPrice: data.BC_RenterPrice,
+            BC_RenterLocation: data.BC_RenterLocation,
+            BC_RenterEmail: data.BC_RenterEmail,
+            BC_TypeOfPayment: data.BC_TypeOfPayment || "Unknown",
+            BC_BoarderTotalPrice: data.BC_BoarderTotalPrice || 0,
+          };
+
+          setBoardDetails(result);
+        } else {
+          setBoardDetails(null);
+        }
+      } catch (err) {
+        console.error("Error fetching document:", err);
         setBoardDetails(null);
       }
     };
+
     getRoomDetails();
   }, [id]);
 
@@ -127,10 +159,11 @@ export default function RoomDetails({ params }: boardID) {
   }, [boardDetails]);
 
   useEffect(() => {
-    const totalValue: number =
-      featureValue?.features?.reduce((a, b) => a + b) || 0;
-    const total =
-      Number(totalValue || 0) + Number(boardDetails?.BC_RenterPrice);
+    const totalFeatureValue =
+      featureValue?.features?.reduce((a, b) => a + b, 0) || 0;
+    const renterPrice = Number(boardDetails?.BC_RenterPrice) || 0;
+
+    const total = totalFeatureValue + renterPrice;
 
     setTotalPrice(total);
   }, [featureValue, boardDetails?.BC_RenterPrice]);
@@ -159,6 +192,51 @@ export default function RoomDetails({ params }: boardID) {
     }
   }, [boardDetails]);
 
+  useEffect(() => {
+    const getRateAndFeedback = async () => {
+      try {
+        const docRef = doc(db, "board", boardDetails?.BC_RenterRoomID || "");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const result = { id: docSnap.id, ...(docSnap.data() as Rated) };
+          setRoomRate(result);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    getRateAndFeedback();
+  }, [boardDetails]);
+
+  const rejectHandle = async () => {
+    try {
+      const docRef = doc(db, "boarders", id);
+      const docSnap = await getDoc(docRef);
+
+      if (docSnap.exists()) {
+        await updateDoc(docRef, {
+          BC_BoarderStatus: "Reject",
+        });
+
+        const fbNotifRef = collection(db, "notifications");
+        await addDoc(fbNotifRef, {
+          createdAt: Timestamp.now(),
+          hide: false,
+          open: false,
+          message: `You have Checked-In in room ${boardDetails?.BC_RenterRoomName}`,
+          room_ID: id,
+          receiverID: boardDetails?.BC_BoarderUID,
+          senderID: boardDetails?.BC_RenterUID,
+          status: "unread",
+          title: `Rejected   ${boardDetails?.BC_BoarderUID} booking`,
+        });
+      }
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
   console.log(checkedIn);
 
   return (
@@ -168,6 +246,9 @@ export default function RoomDetails({ params }: boardID) {
       </nav>
       <div className="z-10 mx-52 h-screen">
         <div className="grid grid-cols-2 gap-4 mt-16">
+          <div className="col-span-2 flex justify-end">
+            <Rate value={roomRate?.Renter_Room_Total_Rating} disabled />
+          </div>
           <div className="h-96 flex justify-center items-center bg-white rounded-2xl drop-shadow-lg">
             <h1 className="font-montserrat text-xl font-bold">
               Image of {boardDetails?.BC_RenterRoomName}
@@ -222,13 +303,15 @@ export default function RoomDetails({ params }: boardID) {
                 <h1 className="mb-6 font-montserrat font-bold text-2xl">
                   Selected Features
                 </h1>
-                {boardDetails?.BC_BoarderChoiceFeature?.map((data, index) => {
-                  return (
+                {boardDetails?.BC_BoarderChoiceFeature?.length ? (
+                  boardDetails?.BC_BoarderChoiceFeature.map((data, index) => (
                     <p className="font-hind text-lg" key={index}>
-                      {data?.name}: Php {data?.value}
+                      {data?.name}: ₱{data?.value?.toLocaleString()}
                     </p>
-                  );
-                })}
+                  ))
+                ) : (
+                  <p className="font-hind text-lg">No features selected</p>
+                )}
               </div>
               <div className="flex flex-col items-center">
                 <h1 className="mb-6 font-montserrat font-bold text-2xl">
@@ -300,54 +383,65 @@ export default function RoomDetails({ params }: boardID) {
                   </span>
                 </h1>
               </div>
-              <div className="grid grid-cols-2 mt-4 gap-3">
-                {boardDetails?.BC_BoarderStatus === "Pending" ? (
-                  <div className="col-span-2 grid grid-cols-2 gap-5">
-                    <button className="bg-red-500 text-white py-1 font-hind rounded-lg">
-                      Reject
-                    </button>
-                    <button
-                      className="bg-[#006B95] text-white py-1 text-lg font-hind rounded-lg"
-                      onClick={() => setAcceptModal(true)}
-                    >
-                      Accept
-                    </button>
-                  </div>
-                ) : (
-                  <div className="col-span-2 grid grid-cols-2 gap-4">
-                    <h1
-                      className={`${
-                        boardDetails?.BC_BoarderStatus === "Paid"
-                          ? `col-span-2 `
-                          : ` col-span-1`
-                      } text-lg rounded-lg font-montserrat font-bold text-white bg-[#006B95] py-2 text-center`}
-                    >
-                      {boardDetails?.BC_BoarderStatus}
-                    </h1>
-
-                    {boardDetails?.BC_BoarderStatus === "Occupied" ? (
+              {boardDetails?.BC_BoarderStatus !== "Reject" ? (
+                <div className="grid grid-cols-2 mt-4 gap-3">
+                  {boardDetails?.BC_BoarderStatus === "Pending" ? (
+                    <div className="col-span-2 grid grid-cols-2 gap-5">
                       <button
-                        className={`bg-[#006B95] text-white py-1 font-hind rounded-lg`}
-                        onClick={() => setShowModalPaid(true)}
+                        onClick={() => setRejectModal(true)}
+                        className="bg-red-500 text-white py-1 font-hind rounded-lg"
                       >
-                        Click here if the user paid
+                        Reject
                       </button>
-                    ) : (
                       <button
-                        type="button"
-                        onClick={() => setCheckedInModal(true)}
+                        className="bg-[#006B95] text-white py-1 text-lg font-hind rounded-lg"
+                        onClick={() => setAcceptModal(true)}
+                      >
+                        Accept
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="col-span-2 grid grid-cols-2 gap-4">
+                      <h1
                         className={`${
-                          boardDetails?.BC_BoarderStatus !== "Paid"
-                            ? `block`
-                            : `hidden`
-                        }  bg-[#28e96b] text-white font-hind font-bold py-2 text-lg rounded-md`}
+                          boardDetails?.BC_BoarderStatus === "Paid"
+                            ? `col-span-2 `
+                            : ` col-span-1`
+                        } text-lg rounded-lg font-montserrat font-bold text-white bg-[#006B95] py-2 text-center`}
                       >
-                        Checked In?
-                      </button>
-                    )}
-                  </div>
-                )}
-              </div>
+                        {boardDetails?.BC_BoarderStatus}
+                      </h1>
+
+                      {boardDetails?.BC_BoarderStatus === "Occupied" ? (
+                        <button
+                          className={`bg-[#006B95] text-white py-1 font-hind rounded-lg`}
+                          onClick={() => setShowModalPaid(true)}
+                        >
+                          Click here if the user paid
+                        </button>
+                      ) : (
+                        <button
+                          type="button"
+                          onClick={() => setCheckedInModal(true)}
+                          className={`${
+                            boardDetails?.BC_BoarderStatus !== "Paid"
+                              ? `block`
+                              : `hidden`
+                          }  bg-[#28e96b] text-white font-hind font-bold py-2 text-lg rounded-md`}
+                        >
+                          Checked In?
+                        </button>
+                      )}
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <div className="font-montserrat font-bold text-[#393939] flex justify-center">
+                  <h1 className="px-7 py-2 bg-red-600 text-white rounded-md">
+                    {boardDetails?.BC_BoarderStatus}
+                  </h1>
+                </div>
+              )}
             </div>
           </div>
         </div>
@@ -391,7 +485,9 @@ export default function RoomDetails({ params }: boardID) {
       >
         <h1 className="font-montserrat font-medium">
           Do you want to accept the book request of{" "}
-          {boardDetails?.BC_BoarderFullName}
+          <span className="font-montserrat font-bold text-[#006B95] capitalize">
+            {boardDetails?.BC_BoarderFullName}
+          </span>{" "}
         </h1>
       </Modal>
       <Modal
@@ -414,6 +510,23 @@ export default function RoomDetails({ params }: boardID) {
       >
         Confirm payment of {boardDetails?.BC_BoarderFullName} in room{" "}
         {boardDetails?.BC_RenterRoomName}
+      </Modal>
+      <Modal
+        open={rejectModal}
+        onClose={() => setRejectModal(false)}
+        onCancel={() => setRejectModal(false)}
+        onOk={() => {
+          setRejectModal(false);
+          rejectHandle();
+        }}
+        centered
+      >
+        <h1>
+          Do you want to confirm to reject the booking request of{" "}
+          <span className="font-montserrat font-bold text-[#006B95] capitalize">
+            {boardDetails?.BC_BoarderFullName}
+          </span>
+        </h1>
       </Modal>
     </div>
   );

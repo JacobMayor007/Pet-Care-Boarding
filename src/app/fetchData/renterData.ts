@@ -94,6 +94,28 @@ const myRoomsEmph = async (userID: string, roomStatus: string) =>{
    }
 }
 
+const UnopenNotification = (userUID: string, callback: (notifications: Notification[]) => void) => {
+  if (!userUID) {
+    console.log("No doctor UID found.");
+    return () => {}; 
+  }
+
+  const notificationsRef = collection(db, "notifications");
+  const q = query(notificationsRef, where("receiverID", "==", userUID), where("open", "==", false));
+
+  // Real-time listener
+  const unsubscribe = onSnapshot(q, (querySnapshot) => {
+   const myNotif: Notification[] = querySnapshot.docs.map((doc)=>({
+      id:doc.id,
+      ...doc.data(),
+   }))
+    
+    callback(myNotif); // Send data to frontend
+  });
+
+  return unsubscribe; // Return the unsubscribe function for cleanup
+};
+
 const MyNotification = (userUID: string, callback: (notifications: Notification[]) => void) => {
     if (!userUID) {
       console.log("No doctor UID found.");
@@ -396,4 +418,4 @@ const MyNotification = (userUID: string, callback: (notifications: Notification[
 
 export {myRooms,  fetchMyDataBoarders,  myRoomsEmph, MyNotification,
    roomDetails, acceptedBooked, paidBooking, myEarnings, 
-   totalEarnings, checkedInRoom, ongoingRoom, upcomingRoom, completedRoom}
+   totalEarnings, checkedInRoom, ongoingRoom, upcomingRoom, completedRoom, UnopenNotification}
