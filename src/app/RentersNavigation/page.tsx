@@ -2,7 +2,7 @@
 import fetchUserData from "../fetchData/fetchUserData";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { BellOutlined } from "@ant-design/icons";
+import { BellOutlined, UserOutlined } from "@ant-design/icons";
 import { useEffect, useRef, useState } from "react";
 import {
   collection,
@@ -48,6 +48,7 @@ const RentersNavigation = () => {
       // Check if the click is outside the divRef element
       if (divRef.current && !divRef.current.contains(e.target as Node)) {
         setLogout(false);
+        setShowNotif(false);
       }
     };
 
@@ -209,17 +210,12 @@ const RentersNavigation = () => {
             className="text-lg text-[#006B95] font-bold cursor-pointer"
             onClick={() => setShowNotif((prev) => !prev)}
           />
-          <h1
-            className="font-montserrat font-bold text-[#006B95] cursor-pointer"
-            onClick={() => setLogout((prev) => !prev)}
-          >
-            {userData[0]?.User_Name} <FontAwesomeIcon icon={faChevronDown} />
-          </h1>
+          <UserOutlined onClick={() => setLogout((prev) => !prev)} />
           {logout ? (
             <div
               className={
                 logout
-                  ? `grid grid-rows-6 justify-center items-center bg-[#F3F3F3] drop-shadow-xl rounded-lg absolute top-10 -left-3 cursor-pointer h-fit w-56`
+                  ? `grid grid-rows-6 justify-center items-center bg-[#F3F3F3] drop-shadow-xl rounded-lg absolute top-10 -right-20 cursor-pointer h-fit w-56`
                   : `hidden`
               }
             >
@@ -229,6 +225,9 @@ const RentersNavigation = () => {
               >
                 My Profile
               </Link> */}
+              <h1 className="capitalize font-montserrat font-bold text-[#393939] text-center">
+                {userData[0]?.User_Name}
+              </h1>
               <Link
                 href={`https://doctor-pet-care-pro.vercel.app/`}
                 className="text-center font-hind  h-full w-44 flex items-center justify-center border-b-[1px] border-[#B1B1B1]"
