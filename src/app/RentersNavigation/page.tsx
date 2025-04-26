@@ -13,7 +13,7 @@ import {
 } from "firebase/firestore";
 import Signout from "../SignedOut/page";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faChevronDown, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
+import { faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 import Loading from "../Loading/page";
 import Link from "next/link";
 import { MyNotification } from "../fetchData/renterData";

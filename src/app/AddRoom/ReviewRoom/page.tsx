@@ -155,12 +155,6 @@ const Review = () => {
 
     setLoading(true);
 
-    const fullName = userData
-      .map((user) => `${user.User_FName} ${user.User_LName}`)
-      .join(", ");
-
-    console.log(fullName);
-
     try {
       const q = query(
         collection(db, "board"),
@@ -181,7 +175,7 @@ const Review = () => {
           Renter_TotalPrice: totalPrice,
           Renter_UserID: userId,
           Renter_Location: location,
-          Renter_UserFullName: fullName,
+          Renter_UserFullName: userData[0].User_Name,
           Renter_TypeOfRoom: typeOfRoom,
           Renter_CreatedAt: Timestamp.now(),
           Renter_UserEmail: userEmail,
