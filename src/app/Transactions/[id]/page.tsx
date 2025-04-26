@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import RentersNavigation from "../../RentersNavigation/page";
 import "@ant-design/v5-patch-for-react-19";
-import dayjs, { Dayjs } from "dayjs";
+import dayjs from "dayjs";
 import {
   addDoc,
   collection,
