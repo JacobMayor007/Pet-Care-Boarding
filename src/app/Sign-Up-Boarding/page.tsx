@@ -9,7 +9,6 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useCreateUserWithEmailAndPassword } from "react-firebase-hooks/auth";
 import RegisterAs from "../RegisterAs/page";
-import { Select } from "antd";
 import Link from "next/link";
 
 export default function RegisterAsDoctor() {

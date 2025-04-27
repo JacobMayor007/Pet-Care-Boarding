@@ -4,26 +4,12 @@ import React, { useEffect, useState } from "react";
 import RentersNavigation from "../../RentersNavigation/page";
 import "@ant-design/v5-patch-for-react-19";
 import dayjs, { Dayjs } from "dayjs";
-import {
-  addDoc,
-  collection,
-  doc,
-  getDoc,
-  Timestamp,
-  updateDoc,
-} from "firebase/firestore";
-import Image from "next/image";
-import { Modal, Rate } from "antd";
+import { doc, getDoc, Timestamp } from "firebase/firestore";
 import "@ant-design/v5-patch-for-react-19";
 import utc from "dayjs/plugin/utc";
 import timezone from "dayjs/plugin/timezone";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isTomorrow from "dayjs/plugin/isTomorrow";
-import {
-  acceptedBooked,
-  paidBooking,
-  checkedInRoom,
-} from "@/app/Transactions/renterData";
 import { db } from "@/app/firebase/config";
 
 dayjs.extend(isTomorrow);
@@ -34,12 +20,6 @@ dayjs.extend(isSameOrAfter);
 
 interface boardID {
   params: Promise<{ id: string }>;
-}
-
-interface Feature {
-  label?: string;
-  name?: string;
-  value?: number;
 }
 
 interface BoardDetails {
@@ -63,15 +43,6 @@ interface BoardDetails {
   Renter_UserFullName?: string;
   Renter_RoomStatus?: string;
   Renter_UserID?: string;
-}
-
-interface Value {
-  features?: number[];
-}
-
-interface Rated {
-  id?: string;
-  Renter_Room_Total_Rating?: number;
 }
 
 export default function RoomDetails({ params }: boardID) {

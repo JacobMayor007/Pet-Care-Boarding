@@ -33,7 +33,7 @@ type Feature = {
 
 interface PetToCater {
   room_provider_info?: {
-    types_of_pet_to_cater?: [];
+    contact?: string;
   };
 }
 
@@ -206,8 +206,7 @@ const Review = () => {
           Renter_TypeOfRoom: typeOfRoom,
           Renter_CreatedAt: Timestamp.now(),
           Renter_UserEmail: userEmail,
-          Renter_PetToCater:
-            petToCater?.room_provider_info?.types_of_pet_to_cater,
+          Renter_Contact: petToCater?.room_provider_info?.contact,
         };
 
         const docRef = await addDoc(collection(db, "board"), roomData);
@@ -224,6 +223,8 @@ const Review = () => {
       console.error("Error adding document: ", error);
     }
   };
+
+  console.log(petToCater?.room_provider_info?.contact);
 
   return (
     <div className="h-full bg-[#D9F0FF] pb-5">
@@ -367,14 +368,6 @@ const Review = () => {
                   Php
                 </span>{" "}
                 {totalPrice}
-              </p>
-              <h1 className="text-base font-hind text-[#565656] font-normal">
-                Pet To Cater:
-              </h1>
-              <p className="font-montserrat font-bold capitalize text-end">
-                {petToCater?.room_provider_info?.types_of_pet_to_cater?.join(
-                  ", "
-                )}
               </p>
             </div>
           </div>
