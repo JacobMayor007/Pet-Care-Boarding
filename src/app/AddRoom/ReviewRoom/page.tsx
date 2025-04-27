@@ -16,6 +16,8 @@ import {
   getDocs,
   DocumentData,
   Timestamp,
+  doc,
+  getDoc,
 } from "firebase/firestore";
 import { getAuth, onAuthStateChanged } from "firebase/auth";
 import { db } from "@/app/firebase/config";
@@ -28,6 +30,12 @@ type Feature = {
   name: string;
   price: number;
 };
+
+interface PetToCater {
+  room_provider_info?: {
+    types_of_pet_to_cater?: [];
+  };
+}
 
 const Review = () => {
   const router = useRouter();
@@ -45,6 +53,7 @@ const Review = () => {
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [typeOfPayment, setTypeOfPayment] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [petToCater, setPetToCater] = useState<PetToCater | null>(null);
 
   useEffect(() => {
     // Ensure code runs only on the client-side (in the browser)
@@ -149,6 +158,26 @@ const Review = () => {
 
     fetchUserData();
   }, [userEmail, userId]);
+
+  useEffect(() => {
+    const petCater = async () => {
+      try {
+        const docRef = doc(db, "room-provider", userData[0]?.User_UID || "");
+        const docSnap = await getDoc(docRef);
+
+        if (docSnap.exists()) {
+          const result = { id: docSnap.id, ...(docSnap.data() as PetToCater) };
+
+          setPetToCater(result);
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+    petCater();
+  }, [userData]);
+
+  console.log(petToCater);
 
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
