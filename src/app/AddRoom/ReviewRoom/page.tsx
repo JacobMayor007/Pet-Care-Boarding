@@ -177,8 +177,6 @@ const Review = () => {
     petCater();
   }, [userData]);
 
-  console.log(petToCater);
-
   const onSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -208,6 +206,8 @@ const Review = () => {
           Renter_TypeOfRoom: typeOfRoom,
           Renter_CreatedAt: Timestamp.now(),
           Renter_UserEmail: userEmail,
+          Renter_PetToCater:
+            petToCater?.room_provider_info?.types_of_pet_to_cater,
         };
 
         const docRef = await addDoc(collection(db, "board"), roomData);
@@ -367,6 +367,14 @@ const Review = () => {
                   Php
                 </span>{" "}
                 {totalPrice}
+              </p>
+              <h1 className="text-base font-hind text-[#565656] font-normal">
+                Pet To Cater:
+              </h1>
+              <p className="font-montserrat font-bold capitalize text-end">
+                {petToCater?.room_provider_info?.types_of_pet_to_cater?.join(
+                  ", "
+                )}
               </p>
             </div>
           </div>

@@ -18,6 +18,7 @@ import { Rate } from "antd";
 import { useRouter } from "next/navigation";
 import fetchUserData, { isAuthenticate } from "./fetchData/fetchUserData";
 import { auth } from "./firebase/config";
+import Link from "next/link";
 
 interface myBoard {
   id?: string;
@@ -367,12 +368,12 @@ export default function RentersPage() {
                 <p className="font-semibold font-hind text-[#565656] ">
                   Php {data?.Renter_RoomPrice}
                 </p>
-                <a
+                <Link
                   href={`/ListOfRooms/${data?.id}`}
                   className="bg-[#006B95] font-hind text-white font-semibold py-0.5 rounded-md text-center"
                 >
                   View Room Details
-                </a>
+                </Link>
               </div>
             );
           })}

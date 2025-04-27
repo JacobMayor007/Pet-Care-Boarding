@@ -36,14 +36,6 @@ export default function RegisterAsDoctor() {
     useCreateUserWithEmailAndPassword(auth);
   const db = getFirestore();
 
-  const options = [
-    { label: "Dogs", value: "dogs" },
-    { label: "Cats", value: "cats" },
-    { label: "Birds", value: "birds" },
-    { label: "Reptiles", value: "reptiles" },
-    { label: "Exotic Animal", value: "exotic animal" },
-  ];
-
   const handleSignUp = async () => {
     try {
       const regex =
@@ -122,7 +114,6 @@ export default function RegisterAsDoctor() {
           contact: formData.contact,
           property_name: formData.propertyName,
           property_address: formData.propertyAddress,
-          types_of_pet_to_cater: formData.petTypes,
         },
       });
 
@@ -185,7 +176,6 @@ export default function RegisterAsDoctor() {
           contact: formData.contact,
           property_name: formData.propertyName,
           property_address: formData.propertyAddress,
-          types_of_pet_to_cater: formData.petTypes,
         },
       });
 
@@ -237,7 +227,6 @@ export default function RegisterAsDoctor() {
           contact: formData.contact,
           property_name: formData.propertyName,
           property_address: formData.propertyAddress,
-          types_of_pet_to_cater: formData.petTypes,
         },
       });
       if (result) {
@@ -476,8 +465,8 @@ export default function RegisterAsDoctor() {
                 </div>
               </div>
             </div>
-            <div className="grid grid-cols-12 gap-5">
-              <div className="relative col-span-6">
+            <div className="grid grid-cols-2 gap-5">
+              <div className="relative ">
                 <label
                   htmlFor="property-address"
                   className="absolute left-7 -top-3  bg-white text-sm  font-hind"
@@ -501,7 +490,7 @@ export default function RegisterAsDoctor() {
                   }
                 />
               </div>
-              <div className="relative col-span-3 w-full">
+              <div className="relative w-full">
                 <label
                   htmlFor="propertyName"
                   className="absolute left-7 -top-3  bg-white text-sm text-nowrap font-hind"
@@ -515,7 +504,7 @@ export default function RegisterAsDoctor() {
                   type={`text`}
                   name="propertyName"
                   id="property-name"
-                  className="h-12 border-[1px] border-solid border-black outline-none rounded-md font-hind text base px-2"
+                  className="h-12 border-[1px] w-full border-solid border-black outline-none rounded-md font-hind text base px-2"
                   value={formData.propertyName}
                   onChange={(e) =>
                     setFormData({
@@ -523,26 +512,6 @@ export default function RegisterAsDoctor() {
                       propertyName: e.target.value,
                     })
                   }
-                />
-              </div>
-              <div className="relative col-span-3 flex items-center">
-                <label
-                  htmlFor="business-name"
-                  className="absolute left-7 z-20 -top-3  bg-white text-sm text-nowrap font-hind"
-                >
-                  Pet Types Catered:
-                  <span className="text-red-500 text-sm font-montserrat ">
-                    *
-                  </span>
-                </label>
-                <Select
-                  mode="multiple"
-                  allowClear
-                  options={options}
-                  onChange={(value) =>
-                    setFormData({ ...formData, petTypes: value })
-                  }
-                  className="h-full w-full border-[1px] border-solid border-black rounded-md text-nowrap  outline-none"
                 />
               </div>
             </div>
