@@ -11,6 +11,7 @@ import timezone from "dayjs/plugin/timezone";
 import isSameOrAfter from "dayjs/plugin/isSameOrAfter";
 import isTomorrow from "dayjs/plugin/isTomorrow";
 import { db } from "@/app/firebase/config";
+import Link from "next/link";
 
 dayjs.extend(isTomorrow);
 dayjs.extend(utc);
@@ -99,12 +100,20 @@ export default function RoomDetails({ params }: boardID) {
       <div className="z-10 mx-52 h-screen">
         <div className="grid grid-cols-2 gap-4 mt-16">
           <div className="col-span-2 flex flex-row items-center justify-between">
-            <h1 className="font-montserrat font-bold text-[#393939] text-2xl">
-              Room Name: {boardDetails?.Renter_RoomName}
-            </h1>
-            <h1 className="font-montserrat font-bold text-[#006B95] text-xl">
-              Price: {boardDetails?.Renter_RoomPrice}
-            </h1>
+            <div>
+              <h1 className="font-montserrat font-bold text-[#393939] text-2xl">
+                Room Name: {boardDetails?.Renter_RoomName}
+              </h1>
+              <h1 className="font-montserrat font-bold text-[#006B95] text-xl">
+                Price: {boardDetails?.Renter_RoomPrice}
+              </h1>
+            </div>
+            <Link
+              href={`/Update/${boardDetails?.boardId}`}
+              className="bg-[#006B95] text-white px-4 py-2 rounded-md flex justify-center items-center"
+            >
+              Update
+            </Link>
           </div>
           <div className="h-96 flex justify-center items-center bg-white rounded-2xl drop-shadow-lg">
             <h1 className="font-montserrat text-xl font-bold">

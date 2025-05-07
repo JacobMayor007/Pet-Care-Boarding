@@ -224,7 +224,6 @@ const Review = () => {
     }
   };
 
-  console.log(petToCater?.room_provider_info?.contact);
 
   return (
     <div className="h-full bg-[#D9F0FF] pb-5">
