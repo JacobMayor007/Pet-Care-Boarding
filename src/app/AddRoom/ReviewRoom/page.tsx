@@ -207,6 +207,7 @@ const Review = () => {
           Renter_CreatedAt: Timestamp.now(),
           Renter_UserEmail: userEmail,
           Renter_Contact: petToCater?.room_provider_info?.contact,
+          Renter_RoomStatus: "vacant",
         };
 
         const docRef = await addDoc(collection(db, "board"), roomData);
@@ -223,7 +224,6 @@ const Review = () => {
       console.error("Error adding document: ", error);
     }
   };
-
 
   return (
     <div className="h-full bg-[#D9F0FF] pb-5">

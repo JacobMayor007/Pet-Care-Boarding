@@ -35,7 +35,7 @@ interface boardID {
 interface Feature {
   label?: string;
   name?: string;
-  value?: number;
+  value?: string;
 }
 
 interface BoardDetails {
@@ -150,9 +150,10 @@ export default function RoomDetails({ params }: boardID) {
 
   useEffect(() => {
     if (boardDetails?.BC_BoarderChoiceFeature) {
-      const featureValues = boardDetails.BC_BoarderChoiceFeature.map(
-        (data) => data?.value
-      ).filter((value): value is number => value !== undefined); // ✅ Filter out undefined values
+      // Convert string values to numbers safely
+      const featureValues = boardDetails.BC_BoarderChoiceFeature.map((data) =>
+        data?.value ? Number(data.value) : 0
+      ).filter((value) => !isNaN(value)); // ✅ filter out NaN
 
       setFeatureValue({ features: featureValues });
     }
@@ -161,6 +162,7 @@ export default function RoomDetails({ params }: boardID) {
   useEffect(() => {
     const totalFeatureValue =
       featureValue?.features?.reduce((a, b) => a + b, 0) || 0;
+
     const renterPrice = Number(boardDetails?.BC_RenterPrice) || 0;
 
     const total = totalFeatureValue + renterPrice;

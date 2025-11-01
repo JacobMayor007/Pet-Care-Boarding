@@ -32,7 +32,10 @@ interface myBoarders {
   BC_BoarderFullName?: string;
   BC_BoarderGuest?: number;
   BC_BoarderPaidAt?: Dayjs | null;
-  BC_BoarderRate?: number;
+  BC_BoarderRateFeedback?: {
+    feedback?: string;
+    rate?: number;
+  };
   BC_BoarderStatus?: string;
   BC_BoarderTotalPrice?: number;
   BC_BoarderTypeRoom?: string;
@@ -114,7 +117,7 @@ export default function AllTransactions() {
   }, [userData]);
 
   useEffect(() => {
-    const isRated = boarders?.map((doc) => doc.BC_BoarderRate);
+    const isRated = boarders?.map((doc) => doc.BC_BoarderRateFeedback?.rate);
 
     if (isRated) {
       setRated(true);
@@ -140,7 +143,7 @@ export default function AllTransactions() {
           >
             Room
           </h1>
-          <h1 className="text-center font-montserrat text-2xl">Price</h1>
+
           <h1 className="text-center font-montserrat text-2xl">Status</h1>
           <h1
             className={
@@ -172,15 +175,13 @@ export default function AllTransactions() {
                     {data?.BC_TypeOfPayment}
                   </p>
                 </div>
-                <h1 className="text-center font-hind text-xl">
-                  Php {data?.BC_BoarderTotalPrice}
-                </h1>
+
                 <h1 className="text-center font-hind text-xl">
                   {data?.BC_BoarderStatus}
                 </h1>
                 {rated ? (
                   <Rate
-                    value={data?.BC_BoarderRate}
+                    value={data?.BC_BoarderRateFeedback?.rate}
                     disabled
                     className="text-center"
                   />
