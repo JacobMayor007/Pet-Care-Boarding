@@ -226,7 +226,7 @@ export default function RoomDetails({ params }: boardID) {
           createdAt: Timestamp.now(),
           hide: false,
           open: false,
-          message: `You have Checked-In in room ${boardDetails?.BC_RenterRoomName}`,
+          message: `You have been rejected to board ${boardDetails?.BC_RenterRoomName}`,
           room_ID: id,
           receiverID: boardDetails?.BC_BoarderUID,
           senderID: boardDetails?.BC_RenterUID,

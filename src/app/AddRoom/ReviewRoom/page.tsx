@@ -52,6 +52,7 @@ const Review = () => {
   const [roomPrice, setRoomPrice] = useState<number>(0);
   const [imageBase64, setImageBase64] = useState<string | null>(null);
   const [typeOfPayment, setTypeOfPayment] = useState<string | null>(null);
+
   const [loading, setLoading] = useState(false);
   const [petToCater, setPetToCater] = useState<PetToCater | null>(null);
 
